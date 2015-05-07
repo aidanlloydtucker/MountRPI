@@ -131,7 +131,6 @@ class PageTwo(tk.Frame):
         button1 = tk.Button(self, text="Cancel Download",
                             command=lambda: controller.show_frame(PageOne))
         button1.pack()
-        
 
 
 class PageThree(tk.Frame):
