@@ -10,6 +10,7 @@ import Tkinter as tk
 import platform
 import urllib
 import time
+import threading
 #piversion = 0
 
 LARGE_FONT= ("Verdana", 12)
@@ -22,21 +23,37 @@ def combine_funcs(*funcs):
 
 def download():
     print "hello world"
-    pg2labeltop.set("Downloading...")
-    downBar.start()
-    
     if piversion.get() == 1:
         print "1"
         #urllib.urlretrieve ("http://downloads.sourceforge.net/project/runeaudio/Images/Raspberry%20Pi/RuneAudio_rpi_0.3-beta_20141029_2GB.img.gz?r=http%3A%2F%2Fwww.runeaudio.com%2Fdownload%2F&ts=1430927551&use_mirror=iweb", "RPI.img.gz")
         time.sleep(5)
-        downBar.stop()
     elif piversion.get() == 2:
         print "2"
         #urllib.urlretrieve ("http://downloads.sourceforge.net/project/runeaudio/Images/Raspberry%20Pi%202/RuneAudio_rpi2_0.3-beta_20150304_2GB.img.gz?r=http%3A%2F%2Fwww.runeaudio.com%2Fdownload%2F&ts=1430927581&use_mirror=superb-dca2", "RPI.img.gz")
         time.sleep(5)
-        downBar.stop()
     else:
         print "Broken download()"
+
+def start_download_thread():
+    global download_thread
+    download_thread = threading.Thread(target=download)
+    download_thread.daemon = True
+    
+    downBar.start()
+    pg2labeltop.set("Downloading...")
+    canceldownload.config(state="tk.normal")
+    canceldownload.update()
+    startdownload.config(state="tk.disabled")
+    startdownload.update()
+    
+    download_thread.start()
+    app.after(20, check_download_thread)
+
+def check_download_thread():
+    if download_thread.is_alive():
+        app.after(20, check_download_thread)
+    else:
+        downBar.stop()
 
 def osApp():
     if platform.system() == "Darwin":
@@ -132,11 +149,13 @@ class PageTwo(tk.Frame):
         downBar = ttk.Progressbar(self, orient=tk.HORIZONTAL, length=200, mode='indeterminate')
         downBar.pack()
         
-        tk.Button(self, text="Start Download", command=download).pack()
+        global startdownload
+        startdownload = tk.Button(self, text="Start Download", state=tk.NORMAL, command=start_download_thread)
+        startdownload.pack()
         
-        button1 = tk.Button(self, text="Cancel Download",
-                            command=lambda: controller.show_frame(PageOne))
-        button1.pack()
+        global canceldownload
+        canceldownload = tk.Button(self, state=tk.DISABLED, text="Cancel Download", command=lambda: controller.show_frame(PageOne))
+        canceldownload.pack()
 
 
 class PageThree(tk.Frame):
