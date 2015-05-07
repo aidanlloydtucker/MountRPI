@@ -41,10 +41,8 @@ def start_download_thread():
     
     downBar.start()
     pg2labeltop.set("Downloading...")
-    canceldownload.config(state="tk.normal")
-    canceldownload.update()
-    startdownload.config(state="tk.disabled")
-    startdownload.update()
+    canceldownload.config(state="normal")
+    startdownload.config(state="disabled")
     
     download_thread.start()
     app.after(20, check_download_thread)
@@ -54,6 +52,9 @@ def check_download_thread():
         app.after(20, check_download_thread)
     else:
         downBar.stop()
+        canceldownload.config(state="disabled")
+        
+
 
 def osApp():
     if platform.system() == "Darwin":
@@ -150,12 +151,14 @@ class PageTwo(tk.Frame):
         downBar.pack()
         
         global startdownload
-        startdownload = tk.Button(self, text="Start Download", state=tk.NORMAL, command=start_download_thread)
+        startdownload = tk.Button(self, text="Start Download", command=start_download_thread)
         startdownload.pack()
         
         global canceldownload
-        canceldownload = tk.Button(self, state=tk.DISABLED, text="Cancel Download", command=lambda: controller.show_frame(PageOne))
+        canceldownload = tk.Button(self, text="Cancel Download", command=lambda: controller.show_frame(PageOne))
         canceldownload.pack()
+        canceldownload.config(state="disabled")
+
 
 
 class PageThree(tk.Frame):
