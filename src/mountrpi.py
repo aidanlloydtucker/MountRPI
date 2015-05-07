@@ -14,10 +14,6 @@ import time
 
 LARGE_FONT= ("Verdana", 12)
 
-def combodownpage2():
-    lambda: controller.show_frame(PageTwo)()
-    download()
-
 def combine_funcs(*funcs):
     def combined_func(*args, **kwargs):
         for f in funcs:
@@ -26,6 +22,9 @@ def combine_funcs(*funcs):
 
 def download():
     print "hello world"
+    pg2labeltop.set("Downloading...")
+    downBar.start()
+    
     if piversion.get() == 1:
         print "1"
         #urllib.urlretrieve ("http://downloads.sourceforge.net/project/runeaudio/Images/Raspberry%20Pi/RuneAudio_rpi_0.3-beta_20141029_2GB.img.gz?r=http%3A%2F%2Fwww.runeaudio.com%2Fdownload%2F&ts=1430927551&use_mirror=iweb", "RPI.img.gz")
@@ -37,11 +36,7 @@ def download():
         time.sleep(5)
         downBar.stop()
     else:
-        tk.top = Toplevel()
-        tk.top.title("Stop!")
-        tk.Message(top, text="Please select an option").pack()
-        tk.Button(top, text="Dismiss", command=top.destroy).pack()
-        tk.top.mainloop()
+        print "Broken download()"
 
 def osApp():
     if platform.system() == "Darwin":
@@ -116,21 +111,28 @@ class PageOne(tk.Frame):
         button1.pack()
 
         button2 = tk.Button(self, text="Download",
-                            command=combine_funcs(lambda: controller.show_frame(PageTwo), download))
+                            command=lambda: controller.show_frame(PageTwo))
         button2.pack()
 
 
 class PageTwo(tk.Frame):
 
     def __init__(self, parent, controller):
+        
+        global pg2labeltop
+        pg2labeltop = tk.StringVar()
+        pg2labeltop.set("")
+        
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Downloading", font=LARGE_FONT)
+        label = tk.Label(self, textvariable=pg2labeltop, font=LARGE_FONT)
         label.pack(pady=10,padx=10)
+        
         
         global downBar
         downBar = ttk.Progressbar(self, orient=tk.HORIZONTAL, length=200, mode='indeterminate')
         downBar.pack()
-        downBar.start()
+        
+        tk.Button(self, text="Start Download", command=download).pack()
         
         button1 = tk.Button(self, text="Cancel Download",
                             command=lambda: controller.show_frame(PageOne))
