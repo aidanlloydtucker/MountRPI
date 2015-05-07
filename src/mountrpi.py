@@ -14,6 +14,10 @@ import time
 
 LARGE_FONT= ("Verdana", 12)
 
+def combodownpage2():
+    lambda: controller.show_frame(PageTwo)()
+    download()
+
 def combine_funcs(*funcs):
     def combined_func(*args, **kwargs):
         for f in funcs:
