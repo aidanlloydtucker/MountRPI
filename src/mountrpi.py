@@ -8,7 +8,7 @@ __date__ = "$May 4, 2015 7:37:26 PM$"
 import ttk
 import Tkinter as tk
 import platform
-import urllib
+import wget
 import time
 import threading
 #piversion = 0
@@ -22,13 +22,16 @@ def combine_funcs(*funcs):
     return combined_func
 
 def download():
+    global rpiimggz
     print "hello world"
     if piversion.get() == 1:
-        print "1"
+        print "1" 
+        rpiimggz = wget.download("http://downloads.sourceforge.net/project/runeaudio/Images/Raspberry%20Pi/RuneAudio_rpi_0.3-beta_20141029_2GB.img.gz?r=http%3A%2F%2Fwww.runeaudio.com%2Fdownload%2F&ts=1430927551&use_mirror=iweb")
         #urllib.urlretrieve ("http://downloads.sourceforge.net/project/runeaudio/Images/Raspberry%20Pi/RuneAudio_rpi_0.3-beta_20141029_2GB.img.gz?r=http%3A%2F%2Fwww.runeaudio.com%2Fdownload%2F&ts=1430927551&use_mirror=iweb", "RPI.img.gz")
         time.sleep(5)
     elif piversion.get() == 2:
         print "2"
+        rpiimggz = wget.download("http://downloads.sourceforge.net/project/runeaudio/Images/Raspberry%20Pi%202/RuneAudio_rpi2_0.3-beta_20150304_2GB.img.gz?r=http%3A%2F%2Fwww.runeaudio.com%2Fdownload%2F&ts=1430927581&use_mirror=superb-dca2")
         #urllib.urlretrieve ("http://downloads.sourceforge.net/project/runeaudio/Images/Raspberry%20Pi%202/RuneAudio_rpi2_0.3-beta_20150304_2GB.img.gz?r=http%3A%2F%2Fwww.runeaudio.com%2Fdownload%2F&ts=1430927581&use_mirror=superb-dca2", "RPI.img.gz")
         time.sleep(5)
     else:
