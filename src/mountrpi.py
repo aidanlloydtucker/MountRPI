@@ -19,35 +19,7 @@ import sys
 
 LARGE_FONT= ("Verdana", 12)
 
-def downcancel():
-    down = Downloader()
-    down.cancel
-    os.remove("RPI.img.gz")
-    print "cancel"
 
-class Downloader:
-
-    def __init__(self):
-        self.stop_down = False
-        self.thread = None
-
-    def download(self, url, destination):
-        self.thread = threading.Thread(target=self.__down, args=(url, destination))
-        self.thread.start()
-
-    def __down(self, url, dest):
-        _continue = True
-        handler = urllib.urlopen(url)
-        self.fp = open(dest, "w")
-        while not self.stop_down and _continue:
-            data = handler.read(4096)
-            self.fp.write(data)
-            _continue = data
-        handler.close()
-        self.fp.close()
-
-    def cancel(self):
-        self.stop_down = True
 
 def combine_funcs(*funcs):
     def combined_func(*args, **kwargs):
@@ -57,17 +29,15 @@ def combine_funcs(*funcs):
 
 def download():
     global rpiimggz
-    print "hello world"
     if piversion.get() == 1:
-        print "1" 
-        down = Downloader()
-        #down.download("http://downloads.sourceforge.net/project/runeaudio/Images/Raspberry%20Pi/RuneAudio_rpi_0.3-beta_20141029_2GB.img.gz?r=http%3A%2F%2Fwww.runeaudio.com%2Fdownload%2F&ts=1430927551&use_mirror=iweb", "RPI.img.gz")
+        urllib.urlretrieve("http://downloads.sourceforge.net/project/runeaudio/Images/Raspberry%20Pi/RuneAudio_rpi_0.3-beta_20141029_2GB.img.gz?r=http%3A%2F%2Fwww.runeaudio.com%2Fdownload%2F&ts=1430927551&use_mirror=iweb", "RPI.img.gz")
     elif piversion.get() == 2:
-        print "2"
-        down = Downloader()
-        #down.download("http://downloads.sourceforge.net/project/runeaudio/Images/Raspberry%20Pi%202/RuneAudio_rpi2_0.3-beta_20150304_2GB.img.gz?r=http%3A%2F%2Fwww.runeaudio.com%2Fdownload%2F&ts=1430927581&use_mirror=superb-dca2", "RPI.img.gz")
+        urllib.urlretrieve("http://downloads.sourceforge.net/project/runeaudio/Images/Raspberry%20Pi%202/RuneAudio_rpi2_0.3-beta_20150304_2GB.img.gz?r=http%3A%2F%2Fwww.runeaudio.com%2Fdownload%2F&ts=1430927581&use_mirror=superb-dca2", "RPI.img.gz")
     else:
-        print "Broken download()"
+        top = tk.Toplevel()
+        top.title("Alert!")
+        tk.Message(top, text="You have not selected an option or the download is broken.")
+        tk.Button(top, text="Dismiss", command=top.destroy)
 
 def start_download_thread():
     global download_thread
@@ -89,23 +59,28 @@ def check_download_thread():
         downBar.stop()
         canceldownload.config(state="disabled")
         pg2labeltop.set("Finished Downloading")
-        with gzip.open('test.txt.gz', 'rb') as f:
+        with gzip.open('RPI.img.gz', 'rb') as f:
             f_in = f.read()
-        
-        with open('test.txt', 'wb') as f:
+        with open('RPI.img', 'wb') as f:
             f.write(f_in)
         nextpg3.config(state="active")
         
+def downcancel():
+    os.remove("RPI.img.gz")
+    sys.exit()
+
 
 def osApp():
+    buttoninstaller.config(state="disabled")
     if platform.system() == "Darwin":
-        print "Mac"
+        os.system("open ./ApplePi-Baker")
     elif platform.system() == "Windows":
-        print "Windows"
-    elif platform.system() == "Linux":
-        print "Linux"
+        os.system("WinFlashTool")
     else:
-        print "Unknown OS"
+        top = tk.Toplevel()
+        top.title("Alert!")
+        tk.Message(top, text="We currently do not support your operating system. Please use Mac OSX or Windows")
+        tk.Button(top, text="Dismiss", command=top.destroy)
 
 class Installgui(tk.Tk):
     
@@ -213,10 +188,11 @@ class PageThree(tk.Frame):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Finished!", font=LARGE_FONT)
         label.pack(pady=10,padx=10)
-
-        button1 = tk.Button(self, text="Open Installer",
-                            command=lambda: controller.show_frame(StartPage))
-        button1.pack()
+        
+        global buttoninstaller
+        buttoninstaller = tk.Button(self, text="Open Installer",
+                            command=osApp)
+        buttoninstaller.pack()
 
         button2 = tk.Button(self, text="Exit (No Installer)",
                             command=sys.exit)
